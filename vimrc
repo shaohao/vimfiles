@@ -13,6 +13,8 @@ set cursorline
 if version >= 703
 	set colorcolumn=80
 endif
+"Disable compatible
+set nocompatible
 "Always show tab line
 set showtabline=2
 "Enable the use of mouse
@@ -29,17 +31,17 @@ if version >= 703
 	if has("ole")
 		set list listchars=eol:<,tab:>-,trail:-,extends:>,precedes:<,conceal:.,nbsp:&
 	else
-		set list listchars=eol:↵,tab:│┈,trail:·,extends:>,precedes:<,conceal:┅,nbsp:&
+		set list listchars=eol:?,tab:│┈,trail:·,extends:>,precedes:<,conceal:┅,nbsp:&
 	endif
 else
 	if has("ole")
 		set list listchars=eol:<,tab:>-,trail:-,extends:>,precedes:<,nbsp:&
 	else
-		set list listchars=eol:↵,tab:│┈,trail:␣,extends:>,precedes:<,nbsp:&
+		set list listchars=eol:?,tab:│┈,trail:?,extends:>,precedes:<,nbsp:&
 	endif
 endif
 "Status line text
-set statusline=%=%y\ \|\ r%l,c%c%V\ \|\ 0x%02B\ \|\ %{&fileencoding}\ \|\ %r\ \|\ %{&fileformat}
+"set statusline=%=%y\ \|\ r%l,c%c%V\ \|\ 0x%02B\ \|\ %{&fileencoding}\ \|\ %r\ \|\ %{&fileformat}
 "File encodings
 set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
 " Set backup directory
@@ -118,7 +120,8 @@ nmap <SPACE> <C-D>
 let g:SuperTabDefaultCompletionType="context"
 "Tagbar
 nnoremap <silent> <F9> :TagbarToggle<CR>
-
+"Powerline
+let g:Powerline_symbols='fancy'
 "Cscope
 if has("cscope")
 	set csprg=/usr/bin/cscope
