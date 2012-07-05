@@ -27,17 +27,16 @@ set hlsearch
 "Enable status line
 set laststatus=2
 "Customize the list mode
-if version >= 703
-	if has("ole")
-		set list listchars=eol:<,tab:>-,trail:-,extends:>,precedes:<,conceal:.,nbsp:&
-	else
-		set list listchars=eol:?,tab:│┈,trail:·,extends:>,precedes:<,conceal:┅,nbsp:&
-	endif
+if &encoding == "utf-8"
+	set list listchars=eol:↵,tab:│┈,trail:·,extends:>,precedes:<,nbsp:&
 else
-	if has("ole")
-		set list listchars=eol:<,tab:>-,trail:-,extends:>,precedes:<,nbsp:&
+	set list listchars=eol:<,tab:>-,trail:-,extends:>,precedes:<,nbsp:&
+endif
+if version >= 703
+	if &encoding == "utf-8"
+		set listchars+=conceal:┅
 	else
-		set list listchars=eol:?,tab:│┈,trail:?,extends:>,precedes:<,nbsp:&
+		set listchars+=conceal:.
 	endif
 endif
 "Status line text
