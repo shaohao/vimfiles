@@ -41,7 +41,7 @@ else
 	endif
 endif
 "Status line text
-"set statusline=%=%y\ \|\ r%l,c%c%V\ \|\ 0x%02B\ \|\ %{&fileencoding}\ \|\ %r\ \|\ %{&fileformat}
+set statusline=%=%y\ \|\ r%l,c%c%V\ \|\ 0x%02B\ \|\ %{&fileencoding}\ \|\ %r\ \|\ %{&fileformat}
 "File encodings
 set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
 " Set backup directory
@@ -120,8 +120,6 @@ nmap <SPACE> <C-D>
 let g:SuperTabDefaultCompletionType="context"
 "Tagbar
 nnoremap <silent> <F9> :TagbarToggle<CR>
-"Powerline
-let g:Powerline_symbols='fancy'
 "Cscope
 if has("cscope")
 	set csprg=/usr/bin/cscope
