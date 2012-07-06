@@ -28,7 +28,7 @@ set hlsearch
 set laststatus=2
 "Customize the list mode
 if &encoding == "utf-8"
-	set list listchars=eol:↵,tab:│┈,trail:·,extends:>,precedes:<,nbsp:&
+	set list listchars=eol:¬,tab:│┈,trail:·,extends:»,precedes:«,nbsp:&
 else
 	set list listchars=eol:<,tab:>-,trail:-,extends:>,precedes:<,nbsp:&
 endif
