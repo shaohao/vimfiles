@@ -98,14 +98,14 @@ autocmd BufReadPre *.nfo call SetFileEncodings('cp437') | set ambiwidth=single
 autocmd BufReadPost *.nfo call RestoreFileEncodings()
 
 "Django template
-autocmd FileType htmldjango set tabstop=8 shiftwidth=4 softtabstop=4 expandtab fenc=utf8
+autocmd BufReadPost,BufNewFile *.html set ft=htmldjango softtabstop=4 tabstop=4 shiftwidth=4 shiftround noexpandtab
 
-"Javascript
-autocmd FileType javascript set cindent tabstop=4 shiftwidth=4 noexpandtab
+"Javascript (jQuery)
+autocmd FileType javascript set cindent tabstop=4 shiftwidth=4 syntax=jquery noexpandtab
 
 "-=[ Binding Kyes ]=-
 "Create a new tab
-map <C-N> <Esc>:tabnew<CR>
+"map <C-N> <Esc>:tabnew<CR>
 "Next/Previous marker in QuickFix Window
 nmap <F3> :cp<CR>
 nmap <F4> :cn<CR>

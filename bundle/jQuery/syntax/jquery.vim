@@ -47,7 +47,7 @@ syn keyword jEvents         contained focusin focusout keydown keypress keyup
 syn keyword jEvents         contained click dblclick hover mousedown mouseenter mouseleave mousemove mouseout mouseover mouseup
 syn keyword jManipulation   contained clone
 syn keyword jManipulation   contained unwrap wrap wrapAll wrapInner
-syn keyword jManipulation   contained append appendTo html preprend prependTo text
+syn keyword jManipulation   contained append appendTo html prepend prependTo text
 syn keyword jManipulation   contained after before insertAfter insertBefore
 syn keyword jManipulation   contained detach empty remove
 syn keyword jManipulation   contained replaceAll replaceWith
