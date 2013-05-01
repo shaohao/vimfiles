@@ -105,7 +105,7 @@ autocmd FileType javascript set cindent tabstop=4 shiftwidth=4 syntax=jquery noe
 
 "-=[ Binding Kyes ]=-
 "Create a new tab
-"map <C-N> <Esc>:tabnew<CR>
+nmap <C-N> <Esc>:tabnew<CR>
 "Next/Previous marker in QuickFix Window
 nmap <F3> :cp<CR>
 nmap <F4> :cn<CR>
@@ -117,12 +117,13 @@ nmap <SPACE> <C-D>
 "-=[ Plugins ]=-
 "neocompcache
 let g:neocomplcache_enable_at_startup = 1
-inoremap <expr><CR> neocompcache#smart_close_popup() . "\<CR>"
-inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
+inoremap <expr><CR>  neocomplcache#smart_close_popup() . "\<CR>"
+inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
 inoremap <expr><C-h> neocomplcache#smart_close_popup()."\<C-h>"
 inoremap <expr><BS> neocomplcache#smart_close_popup()."\<C-h>"
 inoremap <expr><C-y>  neocomplcache#close_popup()
 inoremap <expr><C-e>  neocomplcache#cancel_popup()
+
 "Tagbar
 nnoremap <silent> <F9> :TagbarToggle<CR>
 "Cscope
