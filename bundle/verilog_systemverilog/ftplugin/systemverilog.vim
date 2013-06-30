@@ -17,3 +17,20 @@ let b:match_words .=
   \ ',\<covergroup\>:\<endgroup\>' .
   \ ',\<program\>:\<endprogram\>' .
   \ ',\<property\>:\<endproperty\>'
+
+" Extend tagbar plugin
+let g:tagbar_type_systemverilog = {
+  \ 'ctagstype': 'systemverilog',
+  \ 'kinds': [
+    \ 'e:clocking',
+    \ 'i:constraint',
+    \ 'l:covergroup',
+    \ 'o:class',
+    \ 't:function',
+    \ 'A:interface',
+    \ 'G:module',
+    \ 'J:package',
+    \ 'M:program',
+    \ 'W:task'
+  \ ]
+\ }

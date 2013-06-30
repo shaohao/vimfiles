@@ -59,7 +59,6 @@ autocmd FileType c,cpp,cs set cindent tabstop=4 shiftwidth=4 noexpandtab
 "Verilog/SystemVerilog
 autocmd FileType verilog,systemverilog set tabstop=8 shiftwidth=2 shiftround softtabstop=2 expandtab
 autocmd FileType verilog,systemverilog set efm=%.%#**\ %t%.%#:%.%#\ %f(%l)\:\ %m
-let tlist_systemverilog_settings='systemverilog;d:macro;y:typedef;p:package;c:class;t:task;f:function;i:interface'
 
 "Python
 autocmd BufReadPre,BufNewFile *.py let python_highlight_all=1
