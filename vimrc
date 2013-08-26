@@ -69,7 +69,7 @@ autocmd FileType python set efm=%-GTraceback%.%#\:,%A%>\ \ File\ \"%f\"\\,\ line
 
 "Tcl/Tk
 autocmd BufRead,BufNewFile *.do,*.tm,.tclshrc,.wishrc set filetype=tcl
-autocmd FileType tcl set tabstop=8 shiftwidth=2 softtabstop=2 expandtab
+autocmd FileType tcl set tabstop=8 shiftwidth=4 softtabstop=4 expandtab
 autocmd FileType tcl set makeprg=wish\ %
 autocmd FileType tcl set efm=%AError%.%#:\ %m,%C\ \ \ \ while%.%#,%Z\ \ \ \ \(file\ \"%f\"\ line\ %l%.%#
 
