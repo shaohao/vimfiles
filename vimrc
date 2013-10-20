@@ -114,6 +114,12 @@ nmap <F5> :mak<CR>
 nmap <SPACE> <C-D>
 
 "-=[ Plugins ]=-
+"netrw
+let g:netrw_browse_split = 4
+let g:netrw_liststyle = 3
+let g:netrw_preview = 1
+let g:netrw_winsize = 80
+
 "neocompcache
 let g:neocomplcache_enable_at_startup = 1
 inoremap <expr><CR>  neocomplcache#smart_close_popup() . "\<CR>"
