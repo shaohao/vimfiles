@@ -8,7 +8,7 @@ runtime! ftplugin/verilog.vim
 
 " Extend matchit plugin
 let b:match_words .=
-  \ ',\<fork\>:\<join|join_any|join_none\>,' .
+  \ ',\<fork\>:\<join|join_any|join_none\>' .
   \ ',\<class\>:\<endclass\>' .
   \ ',\<package\>:\<endpackage\>' .
   \ ',\<sequence\>:\<endsequence\>' .

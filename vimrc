@@ -69,7 +69,7 @@ autocmd FileType python set efm=%-GTraceback%.%#\:,%A%>\ \ File\ \"%f\"\\,\ line
 
 "Tcl/Tk
 autocmd BufRead,BufNewFile *.do,*.tm,.tclshrc,.wishrc set filetype=tcl
-autocmd FileType tcl set tabstop=8 shiftwidth=4 softtabstop=4 expandtab
+autocmd FileType tcl set cindent tabstop=8 shiftwidth=4 softtabstop=4 shiftround expandtab
 autocmd FileType tcl set makeprg=wish\ %
 autocmd FileType tcl set efm=%AError%.%#:\ %m,%C\ \ \ \ while%.%#,%Z\ \ \ \ \(file\ \"%f\"\ line\ %l%.%#
 
@@ -104,7 +104,7 @@ autocmd FileType javascript set cindent tabstop=4 shiftwidth=4 syntax=jquery noe
 
 "-=[ Binding Kyes ]=-
 "Create a new tab
-nmap <C-N> <Esc>:tabnew<CR>
+map <C-N> <Esc>:tabnew<CR>
 "Next/Previous marker in QuickFix Window
 nmap <F3> :cp<CR>
 nmap <F4> :cn<CR>
@@ -119,7 +119,7 @@ let g:netrw_altv = 1
 let g:netrw_browse_split = 4
 let g:netrw_liststyle = 3
 let g:netrw_preview = 1
-let g:netrw_winsize = 80
+let g:netrw_winsize = 70
 
 "neocompcache
 let g:neocomplcache_enable_at_startup = 1
@@ -129,7 +129,6 @@ inoremap <expr><C-h> neocomplcache#smart_close_popup()."\<C-h>"
 inoremap <expr><BS> neocomplcache#smart_close_popup()."\<C-h>"
 inoremap <expr><C-y>  neocomplcache#close_popup()
 inoremap <expr><C-e>  neocomplcache#cancel_popup()
-
 "Tagbar
 nnoremap <silent> <F9> :TagbarToggle<CR>
 "Cscope
@@ -180,3 +179,4 @@ function CFT()
 	normal a 
 endfunction
 map <F7> :call CFT()<CR>
+
