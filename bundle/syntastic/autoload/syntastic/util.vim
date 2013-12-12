@@ -6,15 +6,10 @@ let g:loaded_syntastic_util_autoload = 1
 let s:save_cpo = &cpo
 set cpo&vim
 
-if !exists("g:syntastic_debug")
-    let g:syntastic_debug = 0
-endif
-
 if !exists("g:syntastic_delayed_redraws")
     let g:syntastic_delayed_redraws = 0
 endif
 
-let s:deprecationNoticesIssued = []
 let s:redraw_delayed = 0
 let s:redraw_full = 0
 
@@ -31,8 +26,14 @@ if g:syntastic_delayed_redraws
     augroup END
 endif
 
+" Public functions {{{1
+
+function! syntastic#util#isRunningWindows()
+    return has('win16') || has('win32') || has('win64')
+endfunction
+
 function! syntastic#util#DevNull()
-    if has('win32')
+    if syntastic#util#isRunningWindows()
         return 'NUL'
     endif
     return '/dev/null'
@@ -153,12 +154,20 @@ endfunction
 function! syntastic#util#findInParent(what, where)
     let here = fnamemodify(a:where, ':p')
 
+    let root = syntastic#util#Slash()
+    if syntastic#util#isRunningWindows() && here[1] == ':'
+        " The drive letter is an ever-green source of fun.  That's because
+        " we don't care about running syntastic on Amiga these days. ;)
+        let root = fnamemodify(root, ':p')
+        let root = here[0] . root[1:]
+    endif
+
     while !empty(here)
         let p = split(globpath(here, a:what), '\n')
 
         if !empty(p)
             return fnamemodify(p[0], ':p')
-        elseif here == '/'
+        elseif here ==? root
             break
         endif
 
@@ -208,7 +217,7 @@ endfunction
 " Vim segfault, so move redraws to a CursorHold / CursorHoldI handler.
 function! syntastic#util#redraw(full)
     if !g:syntastic_delayed_redraws || !pumvisible()
-        call s:Redraw(a:full)
+        call s:doRedraw(a:full)
         let s:redraw_delayed = 0
         let s:redraw_full = 0
     else
@@ -219,43 +228,13 @@ endfunction
 
 function! syntastic#util#redrawHandler()
     if s:redraw_delayed && !pumvisible()
-        call s:Redraw(s:redraw_full)
+        call s:doRedraw(s:redraw_full)
         let s:redraw_delayed = 0
         let s:redraw_full = 0
     endif
 endfunction
 
-function! syntastic#util#debug(msg)
-    if g:syntastic_debug
-        echomsg "syntastic: debug: " . a:msg
-    endif
-endfunction
-
-function! syntastic#util#info(msg)
-    echomsg "syntastic: info: " . a:msg
-endfunction
-
-function! syntastic#util#warn(msg)
-    echohl WarningMsg
-    echomsg "syntastic: warning: " . a:msg
-    echohl None
-endfunction
-
-function! syntastic#util#error(msg)
-    execute "normal \<Esc>"
-    echohl ErrorMsg
-    echomsg "syntastic: error: " . a:msg
-    echohl None
-endfunction
-
-function! syntastic#util#deprecationWarn(msg)
-    if index(s:deprecationNoticesIssued, a:msg) >= 0
-        return
-    endif
-
-    call add(s:deprecationNoticesIssued, a:msg)
-    call syntastic#util#warn(a:msg)
-endfunction
+" Private functions {{{1
 
 "Redraw in a way that doesnt make the screen flicker or leave anomalies behind.
 "
@@ -264,7 +243,7 @@ endfunction
 "
 "However, on some versions of gvim using `redraw!` causes the screen to
 "flicker - so use redraw.
-function! s:Redraw(full)
+function! s:doRedraw(full)
     if a:full
         redraw!
     else
@@ -274,4 +253,4 @@ endfunction
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
-" vim: set et sts=4 sw=4:
+" vim: set et sts=4 sw=4 fdm=marker:
