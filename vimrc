@@ -82,7 +82,7 @@ autocmd FileType perl set efm=%mat\ %f\ line\ %l%.%#
 autocmd FileType lua set tabstop=8 softtabstop=4 shiftwidth=4 shiftround expandtab
 
 "Java
-autocmd FileType java set tabstop=8 softtabstop=4 shiftwidth=4 shiftround expandtab
+autocmd FileType java set cindent tabstop=4 shiftwidth=4 noexpandtab
 
 "NFO file
 function! SetFileEncodings(encodings)
