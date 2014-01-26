@@ -1,7 +1,7 @@
 "============================================================================
 "File:        syntastic.vim
 "Description: Vim plugin for on the fly syntax checking.
-"Version:     3.3.0-pre
+"Version:     3.4.0-pre
 "License:     This program is free software. It comes without any warranty,
 "             to the extent permitted by applicable law. You can redistribute
 "             it and/or modify it under the terms of the Do What The Fuck You
@@ -23,9 +23,9 @@ runtime! plugin/syntastic/*.vim
 
 let s:running_windows = syntastic#util#isRunningWindows()
 
-for feature in ['autocmd', 'eval', 'modify_fname', 'quickfix', 'user_commands']
-    if !has(feature)
-        call syntastic#log#error("need Vim compiled with feature " . feature)
+for s:feature in ['autocmd', 'eval', 'modify_fname', 'quickfix', 'user_commands']
+    if !has(s:feature)
+        call syntastic#log#error("need Vim compiled with feature " . s:feature)
         finish
     endif
 endfor
@@ -47,8 +47,8 @@ if !exists("g:syntastic_auto_jump")
     let g:syntastic_auto_jump = 0
 endif
 
-if !exists("g:syntastic_quiet_warnings")
-    let g:syntastic_quiet_warnings = 0
+if !exists("g:syntastic_quiet_messages")
+    let g:syntastic_quiet_messages = {}
 endif
 
 if !exists("g:syntastic_stl_format")
@@ -93,6 +93,19 @@ if !exists("g:syntastic_reuse_loc_lists")
     let g:syntastic_reuse_loc_lists = (v:version >= 704)
 endif
 
+if exists("g:syntastic_quiet_warnings")
+    call syntastic#log#deprecationWarn("variable g:syntastic_quiet_warnings is deprecated, please use let g:syntastic_quiet_messages = {'level': 'warnings'} instead")
+    if g:syntastic_quiet_warnings
+        let s:quiet_warnings = get(g:syntastic_quiet_messages, 'type', [])
+        if type(s:quiet_warnings) != type([])
+            let s:quiet_warnings = [s:quiet_warnings]
+        endif
+        call add(s:quiet_warnings, 'warnings')
+        let g:syntastic_quiet_messages['type'] = s:quiet_warnings
+    endif
+endif
+
+
 " debug constants
 let g:SyntasticDebugTrace         = 1
 let g:SyntasticDebugLoclist       = 2
@@ -104,6 +117,10 @@ let s:registry = g:SyntasticRegistry.Instance()
 let s:notifiers = g:SyntasticNotifiers.Instance()
 let s:modemap = g:SyntasticModeMap.Instance()
 
+
+" @vimlint(EVL103, 1, a:cursorPos)
+" @vimlint(EVL103, 1, a:cmdLine)
+" @vimlint(EVL103, 1, a:argLead)
 function! s:CompleteCheckerName(argLead, cmdLine, cursorPos)
     let checker_names = []
     for ft in s:CurrentFiletypes()
@@ -113,10 +130,21 @@ function! s:CompleteCheckerName(argLead, cmdLine, cursorPos)
     endfor
     return join(checker_names, "\n")
 endfunction
+" @vimlint(EVL103, 0, a:cursorPos)
+" @vimlint(EVL103, 0, a:cmdLine)
+" @vimlint(EVL103, 0, a:argLead)
 
+
+" @vimlint(EVL103, 1, a:cursorPos)
+" @vimlint(EVL103, 1, a:cmdLine)
+" @vimlint(EVL103, 1, a:argLead)
 function! s:CompleteFiletypes(argLead, cmdLine, cursorPos)
     return join(s:registry.knownFiletypes(), "\n")
 endfunction
+" @vimlint(EVL103, 0, a:cursorPos)
+" @vimlint(EVL103, 0, a:cmdLine)
+" @vimlint(EVL103, 0, a:argLead)
+
 
 command! SyntasticToggleMode call s:ToggleMode()
 command! -nargs=* -complete=custom,s:CompleteCheckerName SyntasticCheck
@@ -210,9 +238,9 @@ function! s:UpdateErrors(auto_invoked, ...)
     let w:syntastic_loclist_set = 0
     if g:syntastic_always_populate_loc_list || g:syntastic_auto_jump
         call syntastic#log#debug(g:SyntasticDebugNotifications, 'loclist: setloclist (new)')
-        call setloclist(0, loclist.filteredRaw())
+        call setloclist(0, loclist.getRaw())
         let w:syntastic_loclist_set = 1
-        if run_checks && g:syntastic_auto_jump && loclist.hasErrorsOrWarningsToDisplay()
+        if run_checks && g:syntastic_auto_jump && !loclist.isEmpty()
             call syntastic#log#debug(g:SyntasticDebugNotifications, 'loclist: jump')
             silent! lrewind
 
@@ -276,10 +304,9 @@ function! s:CacheErrors(checkers)
                     if decorate_errors
                         call loclist.decorate(checker.getName(), checker.getFiletype())
                     endif
+                    call add(names, [checker.getName(), checker.getFiletype()])
 
                     let newLoclist = newLoclist.extend(loclist)
-
-                    call add(names, [checker.getName(), checker.getFiletype()])
 
                     if !aggregate_errors
                         break
@@ -312,6 +339,11 @@ function! s:CacheErrors(checkers)
         endif
 
         call syntastic#log#debug(g:SyntasticDebugLoclist, "aggregated:", newLoclist)
+
+        if type(g:syntastic_quiet_messages) == type({}) && !empty(g:syntastic_quiet_messages)
+            call newLoclist.quietMessages(g:syntastic_quiet_messages)
+            call syntastic#log#debug(g:SyntasticDebugLoclist, "filtered by g:syntastic_quiet_messages:", newLoclist)
+        endif
     endif
 
     let b:syntastic_loclist = newLoclist
@@ -370,9 +402,9 @@ endfunction
 "return '' if no errors are cached for the buffer
 function! SyntasticStatuslineFlag()
     let loclist = g:SyntasticLoclist.current()
-    let issues = loclist.filteredRaw()
+    let issues = loclist.getRaw()
     let num_issues = loclist.getLength()
-    if loclist.hasErrorsOrWarningsToDisplay()
+    if !loclist.isEmpty()
         let errors = loclist.errors()
         let warnings = loclist.warnings()
 
@@ -492,18 +524,6 @@ function! SyntasticMake(options)
 
     if has_key(a:options, 'defaults')
         call SyntasticAddToErrors(errors, a:options['defaults'])
-    endif
-
-    " Apply ignore patterns
-    let ignored = {}
-    let do_ignore = 0
-    for buf in syntastic#util#unique(map(copy(errors), 'v:val["bufnr"]'))
-        let ignored[buf] = s:IgnoreFile(bufname(str2nr(buf)))
-        let do_ignore = do_ignore || ignored[buf]
-    endfor
-    if do_ignore
-        call filter(errors, '!ignored[v:val["bufnr"]]')
-        call syntastic#log#debug(g:SyntasticDebugLoclist, "filtered loclist:", errors)
     endif
 
     " Add subtype info if present.
