@@ -13,14 +13,14 @@
 if exists("g:loaded_syntastic_php_php_checker")
     finish
 endif
-let g:loaded_syntastic_php_php_checker=1
+let g:loaded_syntastic_php_php_checker = 1
+
+let s:save_cpo = &cpo
+set cpo&vim
 
 function! SyntaxCheckers_php_php_GetHighlightRegex(item)
-    let unexpected = matchstr(a:item['text'], "\\munexpected '[^']\\+'")
-    if len(unexpected) < 1
-        return ''
-    endif
-    return '\V'.split(unexpected, "'")[1]
+    let term = matchstr(a:item['text'], "\\munexpected '\\zs[^']\\+\\ze'")
+    return term != '' ? '\V' . term : ''
 endfunction
 
 function! SyntaxCheckers_php_php_GetLocList() dict
@@ -43,3 +43,8 @@ endfunction
 call g:SyntasticRegistry.CreateAndRegisterChecker({
     \ 'filetype': 'php',
     \ 'name': 'php'})
+
+let &cpo = s:save_cpo
+unlet s:save_cpo
+
+" vim: set et sts=4 sw=4:
