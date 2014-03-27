@@ -22,7 +22,14 @@ function! SyntaxCheckers_vim_vimlint_GetHighlightRegex(item)
     let term = matchstr(a:item['text'], '\m `\zs[^`]\+\ze`')
     if term != ''
         let col = get(a:item, 'col', 0)
-        return '\V' . (col ? '\%' . col . 'c' : '') . term
+
+        if col && term[0:1] ==# 'l:'
+            if getline(a:item.lnum)[col-1:col] !=# 'l:'
+                let term = term[2:]
+            endif
+        endif
+
+        return '\V' . (col ? '\%' . col . 'c' : '') . escape(term, '\')
     endif
 
     return ''
@@ -33,7 +40,7 @@ function! SyntaxCheckers_vim_vimlint_IsAvailable() dict
     try
         call vimlint#vimlint(syntastic#util#DevNull(), { 'output': [], 'quiet': 1 })
         let ret = 1
-    catch /^Vim\%((\a\+)\)\=:E117/
+    catch /\m^Vim\%((\a\+)\)\=:E117/
         " do nothing
     endtry
     return ret
@@ -42,7 +49,9 @@ endfunction
 function! SyntaxCheckers_vim_vimlint_GetLocList() dict
     " EVL102: unused variable v
     " EVL103: unused argument v
+    " EVL104: variable may not be initialized on some execution path: v
     " EVL105: global variable v is defined without g:
+    " EVL106: local variable v is used without l:
     " EVL201: unreachable code
     " EVL204: constant in conditional context
     " EVL205: missing scriptencoding
@@ -54,7 +63,9 @@ function! SyntaxCheckers_vim_vimlint_GetLocList() dict
         \ 'quiet':  1,
         \ 'EVL102': 3,
         \ 'EVL103': 3,
+        \ 'EVL104': 3,
         \ 'EVL105': 3,
+        \ 'EVL106': 3,
         \ 'EVL201': 3,
         \ 'EVL204': 3,
         \ 'EVL205': 3 })
@@ -69,7 +80,7 @@ function! s:vimlintOutput(filename, pos, ev, eid, mes, obj)
         \ 'vcol': 0,
         \ 'type': a:ev[0],
         \ 'text': '[' . a:eid . '] ' . a:mes,
-        \ 'valid': 1 })
+        \ 'valid': a:pos.lnum > 0 })
 endfunction
 " @vimlint(EVL103, 0, a:filename)
 
