@@ -72,11 +72,22 @@ provides just enough reference to get you going.  I also highly recommend you
 check out the docs for the Perl script 'ack', for obvious reasons:
 [ack - grep-like text finder](http://beyondgrep.com/).
 
-## RoadMap
+### Gotchas
 
-Goals for 1.0:
+Some characters have special meaning, and need to be escaped your search
+pattern. For instance, '#'. You have to escape it like this :Ack '\\\#define
+foo' to search for #define foo. (From blueyed in issue #5.)
 
-* Improve documentation, list all options and shortcuts
+## Changelog
+
+### 1.0
+
+* Remove support to ack 1.x
+* Start to use a Changelog
 * Use `autoload` directory to define functions, instead of `plugin`.
+* Add option to auto fold the results(`g:ack_autofold_results`)
+* Improve documentation, list all options and shortcuts
+* Improve highlight option to work when passes directories or use quotes.
+* Add g:ack_mapping
+* Add g:ack_default_options
 * Add a help toggle `?`(like NERDTree)
-* Add option to open all files from result list
