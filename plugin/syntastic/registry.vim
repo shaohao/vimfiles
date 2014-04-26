@@ -60,6 +60,7 @@ let s:defaultCheckers = {
         \ 'pod':         ['podchecker'],
         \ 'puppet':      ['puppet', 'puppetlint'],
         \ 'python':      ['python', 'flake8', 'pylint'],
+        \ 'r':           [],
         \ 'racket':      ['racket'],
         \ 'rst':         ['rst2pseudoxml'],
         \ 'ruby':        ['mri'],
@@ -88,12 +89,14 @@ let s:defaultCheckers = {
         \ 'zpt':         ['zptlint'],
         \ 'zsh':         ['zsh', 'shellcheck']
     \ }
+lockvar! s:defaultCheckers
 
 let s:defaultFiletypeMap = {
         \ 'gentoo-metadata': 'xml',
         \ 'lhaskell': 'haskell',
         \ 'litcoffee': 'coffee'
     \ }
+lockvar! s:defaultFiletypeMap
 
 let g:SyntasticRegistry = {}
 
