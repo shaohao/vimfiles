@@ -9,7 +9,7 @@ ack from vim, and shows the results in a split window.
 
 ### Ack
 
-You will need the ack, of course, to install it follow the
+You will need the ack(>= 2.0), of course, to install it follow the
 [manual](http://beyondgrep.com/install/)
 
 ### The Plugin
@@ -91,3 +91,20 @@ foo' to search for #define foo. (From blueyed in issue #5.)
 * Add g:ack_mapping
 * Add g:ack_default_options
 * Add a help toggle `?`(like NERDTree)
+
+### 1.0.1
+
+* Fixes #124. Bug with `g:ack_autofold_results`
+
+### 1.0.2
+
+* Add compatibility with [vim-dispatch](https://github.com/tpope/vim-dispatch)
+
+### 1.0.3
+
+* Fixes #127. Use `&l:hlsearch` instead of `v:hlsearch` to keep compatibility
+with versions that does not have this variable.
+
+### 1.0.4
+
+* Fixes #128. Always apply mappings, even when using vim-dispatch.

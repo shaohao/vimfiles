@@ -26,7 +26,14 @@ function! ack#Ack(cmd, args)
   try
     " NOTE: we escape special chars, but not everything using shellescape to
     "       allow for passing arguments etc
-    silent execute a:cmd . " " . escape(l:grepargs, '|#%')
+    if exists(":Dispatch")
+      setlocal errorformat=%f:%l:%c:%m
+      let &l:makeprg=g:ackprg." " . escape(l:grepargs, '|#%')
+      Make
+    else
+      silent execute a:cmd . " " . escape(l:grepargs, '|#%')
+    endif
+
   finally
     let &grepprg=grepprg_bak
     let &grepformat=grepformat_bak
@@ -42,7 +49,10 @@ function! ack#Ack(cmd, args)
     let s:close_cmd = ':cclose<CR>'
   endif
 
-  call ack#show_results()
+  if !exists(":Dispatch")
+    call ack#show_results()
+  endif
+  call <SID>apply_maps()
   call <SID>highlight(l:grepargs)
 
   redraw!
@@ -50,7 +60,6 @@ endfunction
 
 function! ack#show_results()
   execute s:handler
-  call <SID>apply_maps()
 endfunction
 
 function! s:apply_maps()
@@ -101,8 +110,7 @@ function! s:highlight(args)
   endif
 
   let @/ = matchstr(a:args, "\\v\\w+\>|['\"]\\zs[^\"]+\\ze['\"]")
-  setlocal hlsearch
-  call feedkeys(":let v:hlsearch=1 \| echo \<CR>", "n")
+  call feedkeys(":let &l:hlsearch=1 \| echo \<CR>", "n")
 endfunction
 
 function! ack#AckFromSearch(cmd, args)
