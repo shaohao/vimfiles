@@ -26,8 +26,8 @@ function! ack#Ack(cmd, args)
   try
     " NOTE: we escape special chars, but not everything using shellescape to
     "       allow for passing arguments etc
-    if exists(":Dispatch")
-      setlocal errorformat=%f:%l:%c:%m
+    if g:ack_use_dispatch
+      let &l:errorformat = g:ackformat
       let &l:makeprg=g:ackprg." " . escape(l:grepargs, '|#%')
       Make
     else
@@ -49,8 +49,10 @@ function! ack#Ack(cmd, args)
     let s:close_cmd = ':cclose<CR>'
   endif
 
-  if !exists(":Dispatch")
+  if !g:ack_use_dispatch
     call ack#show_results()
+  else
+    copen
   endif
   call <SID>apply_maps()
   call <SID>highlight(l:grepargs)
@@ -109,7 +111,7 @@ function! s:highlight(args)
     return
   endif
 
-  let @/ = matchstr(a:args, "\\v\\w+\>|['\"]\\zs[^\"]+\\ze['\"]")
+  let @/ = matchstr(a:args, "\\v[^-]{1,2}\\s\\zs\\w+\>|['\"]\\zs.{-}\\ze['\"]")
   call feedkeys(":let &l:hlsearch=1 \| echo \<CR>", "n")
 endfunction
 
