@@ -66,7 +66,6 @@ let s:defaultCheckers = {
         \ 'racket':      ['racket'],
         \ 'rst':         ['rst2pseudoxml'],
         \ 'ruby':        ['mri'],
-        \ 'rust':        ['rustc'],
         \ 'sass':        ['sass'],
         \ 'scala':       ['fsc', 'scalac'],
         \ 'scss':        ['sass', 'scss_lint'],
@@ -239,7 +238,7 @@ endfunction " }}}2
 function! g:SyntasticRegistry._checkDeprecation(filetype) " {{{2
     if exists('g:syntastic_' . a:filetype . '_checker') && !exists('g:syntastic_' . a:filetype . '_checkers')
         let g:syntastic_{a:filetype}_checkers = [g:syntastic_{a:filetype}_checker]
-        call syntastic#log#deprecationWarn('variable g:syntastic_' . a:filetype . '_checker is deprecated')
+        call syntastic#log#oneTimeWarn('variable g:syntastic_' . a:filetype . '_checker is deprecated')
     endif
 endfunction " }}}2
 
