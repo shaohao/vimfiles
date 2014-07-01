@@ -96,11 +96,11 @@ endfunction
 autocmd BufReadPre *.nfo call SetFileEncodings('cp437') | set ambiwidth=single
 autocmd BufReadPost *.nfo call RestoreFileEncodings()
 
-"Django template
-autocmd BufReadPost,BufNewFile *.html set ft=htmldjango softtabstop=4 tabstop=4 shiftwidth=4 shiftround noexpandtab
+"Html
+autocmd BufReadPost,BufNewFile *.html set softtabstop=4 tabstop=4 shiftwidth=4 shiftround noexpandtab
 
-"Javascript (jQuery)
-autocmd FileType javascript set cindent tabstop=4 shiftwidth=4 syntax=jquery noexpandtab
+"Javascript
+autocmd FileType javascript set cindent tabstop=4 shiftwidth=4 noexpandtab
 
 "-=[ Binding Kyes ]=-
 "Create a new tab
