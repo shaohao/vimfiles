@@ -147,7 +147,7 @@ if has("cscope")
 	set csverb
 endif
 
-"-=[ Customized functions ]=-
+"-=[ Customization ]=-
 " Insert line number at the head of each line
 function ILN(delim)
 	let l:bln = line(".")
@@ -180,3 +180,5 @@ function CFT()
 endfunction
 map <F7> :call CFT()<CR>
 
+" Write with sudo
+command W w !sudo tee % > /dev/null
