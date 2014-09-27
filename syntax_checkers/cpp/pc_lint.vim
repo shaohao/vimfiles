@@ -1,7 +1,7 @@
 "============================================================================
-"File:        avrgcc.vim
+"File:        pc_lint.vim
 "Description: Syntax checking plugin for syntastic.vim
-"Maintainer:  Karel <karelishere at gmail dot com>
+"Maintainer:  Steve Bragg <steve at empresseffects dot com>
 "License:     This program is free software. It comes without any warranty,
 "             to the extent permitted by applicable law. You can redistribute
 "             it and/or modify it under the terms of the Do What The Fuck You
@@ -10,17 +10,17 @@
 "
 "============================================================================
 
-if exists('g:loaded_syntastic_arduino_avrgcc_checker')
+if exists("g:loaded_syntastic_cpp_pc_lint_checker")
     finish
 endif
-let g:loaded_syntastic_arduino_avrgcc_checker = 1
+let g:loaded_syntastic_cpp_pc_lint_checker = 1
 
 runtime! syntax_checkers/c/*.vim
 
 call g:SyntasticRegistry.CreateAndRegisterChecker({
-    \ 'filetype': 'arduino',
-    \ 'name': 'avrgcc',
-    \ 'exec': 'avr-gcc',
-    \ 'redirect': 'c/avrgcc'})
+    \ 'filetype': 'cpp',
+    \ 'name': 'pc_lint',
+    \ 'exec': 'lint-nt',
+    \ 'redirect': 'c/pc_lint'})
 
 " vim: set et sts=4 sw=4:
