@@ -31,7 +31,7 @@ under `~/.vim/bundle`, and they will be added to the `'runtimepath'`.
 Observe:
 
     cd ~/.vim/bundle && \
-    git clone git://github.com/tpope/vim-sensible.git
+    git clone https://github.com/tpope/vim-sensible.git
 
 Now [sensible.vim](https://github.com/tpope/vim-sensible) is installed.
 If you really want to get crazy, you could set it up as a submodule in
@@ -43,8 +43,7 @@ glob as an argument:
 
     execute pathogen#infect('stuff/{}')
 
-The `{}` indicates where the expansion should occur.  Currently only a
-trailing `{}` is supported.
+The `{}` indicates where the expansion should occur.
 
 You can also pass an absolute path instead.  I keep the plugins I maintain under `~/src`, and this is how I add them:
 
