@@ -1,6 +1,6 @@
 #!/bin/bash
 
-git subtree pull --prefix=bundle/vim-go          https://github.com/fatih/vim-go.git                 master --squash
+git subtree pull --prefix=bundle/vim-go          https://github.com/fatih/vim-go.git               master --squash
 git subtree pull --prefix=bundle/neocomplete.vim https://github.com/Shougo/neocomplete.vim.git     master --squash
 git subtree pull --prefix=bundle/ctrlp.vim       https://github.com/kien/ctrlp.vim.git             master --squash
 git subtree pull --prefix=bundle/syntastic       https://github.com/scrooloose/syntastic.git       master --squash
