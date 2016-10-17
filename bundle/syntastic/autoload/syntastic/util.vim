@@ -37,12 +37,18 @@ function! syntastic#util#system(command) abort " {{{2
     let $LC_MESSAGES = 'C'
     let $LC_ALL = ''
 
+    let cmd_start = reltime()
     let out = system(a:command)
+    let cmd_time = split(reltimestr(reltime(cmd_start)))[0]
 
     let $LC_ALL = old_lc_all
     let $LC_MESSAGES = old_lc_messages
 
     let &shell = old_shell
+
+    if exists('g:_SYNTASTIC_DEBUG_TRACE')
+        call syntastic#log#debug(g:_SYNTASTIC_DEBUG_TRACE, 'system: command run in ' . cmd_time . 's')
+    endif
 
     return out
 endfunction " }}}2
@@ -51,7 +57,7 @@ endfunction " }}}2
 function! syntastic#util#tmpdir() abort " {{{2
     let tempdir = ''
 
-    if (has('unix') || has('mac')) && executable('mktemp')
+    if (has('unix') || has('mac')) && executable('mktemp') && !has('win32unix')
         " TODO: option "-t" to mktemp(1) is not portable
         let tmp = $TMPDIR !=# '' ? $TMPDIR : $TMP !=# '' ? $TMP : '/tmp'
         let out = split(syntastic#util#system('mktemp -q -d ' . tmp . '/vim-syntastic-' . getpid() . '-XXXXXXXX'), "\n")
@@ -90,21 +96,14 @@ function! syntastic#util#rmrf(what) abort " {{{2
     endif
 
     if  getftype(a:what) ==# 'dir'
-        if !exists('s:rmrf')
-            let s:rmrf =
-                \ has('unix') || has('mac') ? 'rm -rf' :
-                \ has('win32') || has('win64') ? 'rmdir /S /Q' :
-                \ has('win16') || has('win95') || has('dos16') || has('dos32') ? 'deltree /Y' : ''
-        endif
-
-        if s:rmrf !=# ''
-            silent! call syntastic#util#system(s:rmrf . ' ' . syntastic#util#shescape(a:what))
-        else
-            call s:_rmrf(a:what)
-        endif
+        call s:_delete(a:what, 'rf')
     else
         silent! call delete(a:what)
     endif
+endfunction " }}}2
+
+function! syntastic#util#getbufvar(buf, name, ...) abort " {{{2
+    return a:0 ? s:_getbufvar(a:buf, a:name, a:1) : getbufvar(a:buf, a:name)
 endfunction " }}}2
 
 " Search the first 5 lines of the file for a magic number and return a map
@@ -131,12 +130,24 @@ function! syntastic#util#parseShebang() abort " {{{2
     return { 'exe': '', 'args': [] }
 endfunction " }}}2
 
-" Get the value of a variable.  Allow local variables to override global ones.
+" Get the value of a Vim variable.  Allow buffer variables to override global ones.
+function! syntastic#util#bufRawVar(buf, name, ...) abort " {{{2
+    return s:_getbufvar(a:buf, a:name, get(g:, a:name, a:0 ? a:1 : ''))
+endfunction "}}}2
+
+" Get the value of a syntastic variable.  Allow buffer variables to override global ones.
+function! syntastic#util#bufVar(buf, name, ...) abort " {{{2
+    return call('syntastic#util#bufRawVar', [a:buf, 'syntastic_' . a:name] + a:000)
+endfunction "}}}2
+
+" Get the value of a Vim variable.  Allow local variables to override global ones.
+function! syntastic#util#rawVar(name, ...) abort " {{{2
+    return get(b:, a:name, get(g:, a:name, a:0 ? a:1 : ''))
+endfunction " }}}2
+
+" Get the value of a syntastic variable.  Allow local variables to override global ones.
 function! syntastic#util#var(name, ...) abort " {{{2
-    return
-        \ exists('b:syntastic_' . a:name) ? b:syntastic_{a:name} :
-        \ exists('g:syntastic_' . a:name) ? g:syntastic_{a:name} :
-        \ a:0 > 0 ? a:1 : ''
+    return call('syntastic#util#rawVar', ['syntastic_' . a:name] + a:000)
 endfunction " }}}2
 
 " Parse a version string.  Return an array of version components.
@@ -167,11 +178,6 @@ function! syntastic#util#compareLexi(a, b) abort " {{{2
     " still here, thus everything matched
     return 0
 endfunction " }}}2
-
-" strwidth() was added in Vim 7.3; if it doesn't exist, we use strlen()
-" and hope for the best :)
-let s:_width = function(exists('*strwidth') ? 'strwidth' : 'strlen')
-lockvar s:_width
 
 function! syntastic#util#screenWidth(str, tabstop) abort " {{{2
     let chunks = split(a:str, "\t", 1)
@@ -251,7 +257,12 @@ function! syntastic#util#findGlobInParent(what, where) abort " {{{2
 
     let old = ''
     while here !=# ''
-        let p = split(globpath(here, a:what, 1), '\n')
+        try
+            " Vim 7.4.279 and later
+            let p = globpath(here, a:what, 1, 1)
+        catch /\m^Vim\%((\a\+)\)\=:E118/
+            let p = split(globpath(here, a:what, 1), "\n")
+        endtry
 
         if !empty(p)
             return fnamemodify(p[0], ':p')
@@ -269,13 +280,44 @@ function! syntastic#util#findGlobInParent(what, where) abort " {{{2
     return ''
 endfunction " }}}2
 
+" Returns the buffer number of a filename
+" @vimlint(EVL104, 1, l:old_shellslash)
+function! syntastic#util#fname2buf(fname) abort " {{{2
+    if exists('+shellslash')
+        " bufnr() can't cope with backslashes
+        let old_shellslash = &shellslash
+        let &shellslash = 1
+    endif
+
+    " this is a best-effort attempt to escape file patterns (cf. :h file-pattern)
+    " XXX it fails for filenames containing something like \{2,3}
+    for md in [':~:.', ':~', ':p']
+        let buf = bufnr('^' . escape(fnamemodify(a:fname, md), '\*?,{}[') . '$')
+        if buf != -1
+            break
+        endif
+    endfor
+    if buf == -1
+        " XXX definitely wrong, but hope is the last thing to die :)
+        let buf = bufnr(fnamemodify(a:fname, ':p'))
+    endif
+
+    if exists('+shellslash')
+        let &shellslash = old_shellslash
+    endif
+
+    return buf
+endfunction " }}}2
+" @vimlint(EVL104, 0, l:old_shellslash)
+
 " Returns unique elements in a list
 function! syntastic#util#unique(list) abort " {{{2
     let seen = {}
     let uniques = []
     for e in a:list
-        if !has_key(seen, e)
-            let seen[e] = 1
+        let k = string(e)
+        if !has_key(seen, k)
+            let seen[k] = 1
             call add(uniques, e)
         endif
     endfor
@@ -339,8 +381,24 @@ function! syntastic#util#stamp() abort " {{{2
     return split( split(reltimestr(reltime(g:_SYNTASTIC_START)))[0], '\.' )
 endfunction " }}}2
 
-let s:_str2float = function(exists('*str2float') ? 'str2float' : 'str2nr')
-lockvar s:_str2float
+function! syntastic#util#setLastTick(buf) abort " {{{2
+    call setbufvar(a:buf, 'syntastic_lasttick', getbufvar(a:buf, 'changedtick'))
+endfunction " }}}2
+
+let s:_wid_base = 'syntastic_' . getpid() . '_' . reltimestr(g:_SYNTASTIC_START) . '_'
+let s:_wid_pool = 0
+
+" Add unique IDs to windows
+function! syntastic#util#setWids() abort " {{{2
+    for tab in range(1, tabpagenr('$'))
+        for win in range(1, tabpagewinnr(tab, '$'))
+            if gettabwinvar(tab, win, 'syntastic_wid') ==# ''
+                call settabwinvar(tab, win, 'syntastic_wid', s:_wid_base . s:_wid_pool)
+                let s:_wid_pool += 1
+            endif
+        endfor
+    endfor
+endfunction " }}}2
 
 function! syntastic#util#str2float(val) abort " {{{2
     return s:_str2float(a:val)
@@ -463,6 +521,32 @@ function! s:_translateElement(key, term) abort " {{{2
     return ret
 endfunction " }}}2
 
+" strwidth() was added in Vim 7.3; if it doesn't exist, we use strlen()
+" and hope for the best :)
+let s:_width = function(exists('*strwidth') ? 'strwidth' : 'strlen')
+lockvar s:_width
+
+" @vimlint(EVL103, 1, a:flags)
+function! s:_delete_dumb(what, flags) abort " {{{2
+    if !exists('s:rmrf')
+        let s:rmrf =
+            \ has('unix') || has('mac') ? 'rm -rf' :
+            \ has('win32') || has('win64') ? 'rmdir /S /Q' :
+            \ has('win16') || has('win95') || has('dos16') || has('dos32') ? 'deltree /Y' : ''
+    endif
+
+    if s:rmrf !=# ''
+        silent! call syntastic#util#system(s:rmrf . ' ' . syntastic#util#shescape(a:what))
+    else
+        call s:_rmrf(a:what)
+    endif
+endfunction " }}}2
+" @vimlint(EVL103, 0, a:flags)
+
+" delete(dir, 'rf') was added in Vim 7.4.1107, but it didn't become usable until 7.4.1128
+let s:_delete = function(v:version > 704 || (v:version == 704 && has('patch1128')) ? 'delete' : 's:_delete_dumb')
+lockvar s:_delete
+
 function! s:_rmrf(what) abort " {{{2
     if !exists('s:rmdir')
         let s:rmdir = syntastic#util#shescape(get(g:, 'netrw_localrmdir', 'rmdir'))
@@ -473,7 +557,13 @@ function! s:_rmrf(what) abort " {{{2
             return
         endif
 
-        for f in split(globpath(a:what, '*', 1), "\n")
+        try
+            " Vim 7.4.279 and later
+            let entries = globpath(a:what, '*', 1, 1)
+        catch /\m^Vim\%((\a\+)\)\=:E118/
+            let entries = split(globpath(a:what, '*', 1), "\n")
+        endtry
+        for f in entries
             call s:_rmrf(f)
         endfor
         silent! call syntastic#util#system(s:rmdir . ' ' . syntastic#util#shescape(a:what))
@@ -481,6 +571,9 @@ function! s:_rmrf(what) abort " {{{2
         silent! call delete(a:what)
     endif
 endfunction " }}}2
+
+let s:_str2float = function(exists('*str2float') ? 'str2float' : 'str2nr')
+lockvar s:_str2float
 
 function! s:_float2str_smart(val) abort " {{{2
     return printf('%.1f', a:val)
@@ -492,6 +585,18 @@ endfunction " }}}2
 
 let s:_float2str = function(has('float') ? 's:_float2str_smart' : 's:_float2str_dumb')
 lockvar s:_float2str
+
+function! s:_getbufvar_dumb(buf, name, ...) abort " {{{2
+    let ret = getbufvar(a:buf, a:name)
+    if a:0 && type(ret) == type('') && ret ==# ''
+        unlet! ret
+        let ret = a:1
+    endif
+    return ret
+endfunction "}}}2
+
+let s:_getbufvar = function(v:version > 703 || (v:version == 703 && has('patch831')) ? 'getbufvar' : 's:_getbufvar_dumb')
+lockvar s:_getbufvar
 
 " }}}1
 
