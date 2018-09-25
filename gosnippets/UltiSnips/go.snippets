@@ -169,7 +169,7 @@ endsnippet
 # error multiple return
 snippet errn, "Error return with two return values" !b
 if err != nil {
-	return ${1:nil}, err
+	return ${1:nil}, ${2:err}
 }
 ${0}
 endsnippet
@@ -362,6 +362,28 @@ func Test${1:Function}(t *testing.T) {
 	${0:${VISUAL}}
 }
 endsnippet
+
+# test table snippet
+snippet tt
+var tests = []struct {
+	name string
+	expected string
+	given string
+}{
+	{"${1}", "${2}", "${3}",},
+}
+for _, tt := range tests {
+	tt := tt
+	t.Run(tt.name, func(t *testing.T){
+		actual := ${0:${VISUAL}}(tt.given)
+		if actual != tt.expected {
+				t.Errorf("$0(%s): expected %s, actual %s", tt.given, tt.expected, actual)
+		}
+
+	})
+}
+endsnippet
+
 
 snippet hf "http.HandlerFunc" !b
 func ${1:handler}(w http.ResponseWriter, r *http.Request) {
