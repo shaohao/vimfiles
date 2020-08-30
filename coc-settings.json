@@ -1,0 +1,8 @@
+{
+	"languageserver": {
+		"svls": {
+			"command": "svls",
+			"filetypes": ["systemverilog"]
+		}
+	}
+}

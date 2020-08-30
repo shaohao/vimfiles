@@ -1,6 +1,10 @@
-"-=[ Plugin Manager ]=-
-runtime bundle/vim-pathogen/autoload/pathogen.vim
-call pathogen#infect()
+set nocompatible
+filetype off
+
+
+filetype plugin indent on
+
+packadd! matchit
 
 "-=[ Normal Settings ]=-
 " Enable backspace
@@ -49,40 +53,13 @@ set backupdir=~/.vim/backup,/tmp
 autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal g`\"" | endif
 "General File formats
 syntax on
-filetype plugin indent on
 set ci si
 
 "-=[ Programming Languages ]=-
+set tabstop=4 shiftwidth=4 shiftround softtabstop=4 expandtab
+
 "C/C++
 autocmd FileType c,cpp,cs set cindent tabstop=4 shiftwidth=4 noexpandtab
-
-"Verilog/SystemVerilog
-autocmd FileType verilog,systemverilog set tabstop=8 shiftwidth=2 shiftround softtabstop=2 expandtab
-autocmd FileType verilog,systemverilog set efm=%.%#**\ %t%.%#:%.%#\ %f(%l)\:\ %m
-
-"Python
-autocmd BufReadPre,BufNewFile *.py let python_highlight_all=1
-autocmd FileType python set tabstop=8 softtabstop=4 shiftwidth=4 shiftround expandtab
-autocmd FileType python set makeprg=python2\ %
-"autocmd FileType python set efm=%C\ %.%#,%A\ \ File\ \"%f\"\\,\ line\ %l%.%#,%Z%[%^\ ]%\\@=%m
-autocmd FileType python set efm=%-GTraceback%.%#\:,%A%>\ \ File\ \"%f\"\\,\ line\ %l%.%#,%C\ \ \ \ %.%#,%Z%[%^\ ]%\\@=%m
-
-"Tcl/Tk
-autocmd BufRead,BufNewFile *.do,*.tm,.tclshrc,.wishrc set filetype=tcl
-autocmd FileType tcl set cindent tabstop=8 shiftwidth=4 softtabstop=4 shiftround expandtab
-autocmd FileType tcl set makeprg=wish\ %
-autocmd FileType tcl set efm=%AError%.%#:\ %m,%C\ \ \ \ while%.%#,%Z\ \ \ \ \(file\ \"%f\"\ line\ %l%.%#
-
-"Perl
-autocmd FileType perl set cindent tabstop=8 shiftwidth=4 softtabstop=4 shiftround expandtab
-autocmd FileType perl set makeprg=perl\ %
-autocmd FileType perl set efm=%mat\ %f\ line\ %l%.%#
-
-"Lua
-autocmd FileType lua set tabstop=8 softtabstop=4 shiftwidth=4 shiftround expandtab
-
-"Java
-autocmd FileType java set cindent tabstop=4 shiftwidth=4 noexpandtab
 
 "NFO file
 function! SetFileEncodings(encodings)
@@ -95,12 +72,6 @@ function! RestoreFileEncodings()
 endfunction
 autocmd BufReadPre *.nfo call SetFileEncodings('cp437') | set ambiwidth=single
 autocmd BufReadPost *.nfo call RestoreFileEncodings()
-
-"Html
-autocmd BufReadPost,BufNewFile *.html set softtabstop=4 tabstop=4 shiftwidth=4 shiftround noexpandtab
-
-"Javascript
-autocmd FileType javascript set cindent tabstop=4 shiftwidth=4 noexpandtab
 
 "-=[ Binding Kyes ]=-
 "Create a new tab
@@ -120,123 +91,42 @@ let g:netrw_browse_split = 4
 let g:netrw_liststyle = 3
 let g:netrw_preview = 1
 let g:netrw_winsize = 70
-
-"neocomplete
-"Note: This option must be set in .vimrc(_vimrc).  NOT IN .gvimrc(_gvimrc)!
-" Disable AutoComplPop.
-let g:acp_enableAtStartup = 0
-" Use neocomplete.
-let g:neocomplete#enable_at_startup = 1
-" Use smartcase.
-let g:neocomplete#enable_smart_case = 1
-" Set minimum syntax keyword length.
-let g:neocomplete#sources#syntax#min_keyword_length = 3
-let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
-
-" Define dictionary.
-let g:neocomplete#sources#dictionary#dictionaries = {
-    \ 'default' : '',
-    \ 'vimshell' : $HOME.'/.vimshell_hist',
-    \ 'scheme' : $HOME.'/.gosh_completions'
-        \ }
-
-" Define keyword.
-if !exists('g:neocomplete#keyword_patterns')
-    let g:neocomplete#keyword_patterns = {}
-endif
-let g:neocomplete#keyword_patterns['default'] = '\h\w*'
-
-" Plugin key-mappings.
-inoremap <expr><C-g>     neocomplete#undo_completion()
-inoremap <expr><C-l>     neocomplete#complete_common_string()
-
-" Recommended key-mappings.
-" <CR>: close popup and save indent.
-inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
-function! s:my_cr_function()
-  return (pumvisible() ? "\<C-y>" : "" ) . "\<CR>"
-  " For no inserting <CR> key.
-  "return pumvisible() ? "\<C-y>" : "\<CR>"
-endfunction
-" <TAB>: completion.
-inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-" <C-h>, <BS>: close popup and delete backword char.
-inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
-inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
-" Close popup by <Space>.
-inoremap <expr><Space> pumvisible() ? "\<C-y>" : "\<Space>"
-
-" AutoComplPop like behavior.
-let g:neocomplete#enable_auto_select = 1
-
-" Shell like behavior(not recommended).
-"set completeopt+=longest
-"let g:neocomplete#enable_auto_select = 1
-"let g:neocomplete#disable_auto_complete = 1
-"inoremap <expr><TAB>  pumvisible() ? "\<Down>" : "\<C-x>\<C-u>"
-
-" Enable omni completion.
-autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
-
-" Enable heavy omni completion.
-if !exists('g:neocomplete#sources#omni#input_patterns')
-  let g:neocomplete#sources#omni#input_patterns = {}
-endif
-let g:neocomplete#sources#omni#input_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
-let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
-let g:neocomplete#sources#omni#input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-
-" For perlomni.vim setting.
-" https://github.com/c9s/perlomni.vim
-let g:neocomplete#sources#omni#input_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
-
-"Tagbar
-nnoremap <silent> <F9> :TagbarToggle<CR>
-"Cscope
-if has("cscope")
-	set csprg=/usr/bin/cscope
-	set csto=0
-	set cst
-	set nocsverb
-	" add any database in current directory
-	if filereadable(".cscope/cscope.out")
-		cs add .cscope/cscope.out
-	" else add database pointed to by environment
-	elseif $CSCOPE_DB != ""
-		cs add $CSCOPE_DB
-	endif
-	set csverb
-endif
+"indentLine
+let g:indentLine_char_list = ['|', '¦', '┆', '┊']
+"rainbow
+let g:rainbow_active = 1
+let g:rainbow_conf = {
+\	'guifgs': ['royalblue3', 'darkorange3', 'seagreen3', 'firebrick'],
+\	'ctermfgs': ['lightblue', 'lightyellow', 'lightcyan', 'lightmagenta'],
+\	'guis': [''],
+\	'cterms': [''],
+\	'operators': '_,_',
+\	'parentheses': ['start=/(/ end=/)/ fold', 'start=/\[/ end=/\]/ fold', 'start=/{/ end=/}/ fold'],
+\	'separately': {
+\		'*': {},
+\		'markdown': {
+\			'parentheses_options': 'containedin=markdownCode contained',
+\		},
+\		'lisp': {
+\			'guifgs': ['royalblue3', 'darkorange3', 'seagreen3', 'firebrick', 'darkorchid3'],
+\		},
+\		'haskell': {
+\			'parentheses': ['start=/(/ end=/)/ fold', 'start=/\[/ end=/\]/ fold', 'start=/\v\{\ze[^-]/ end=/}/ fold'],
+\		},
+\		'vim': {
+\			'parentheses_options': 'containedin=vimFuncBody',
+\		},
+\		'perl': {
+\			'syn_name_prefix': 'perlBlockFoldRainbow',
+\		},
+\		'stylus': {
+\			'parentheses': ['start=/{/ end=/}/ fold contains=@colorableGroup'],
+\		},
+\		'css': 0,
+\	}
+\}
 
 "-=[ Customization ]=-
-" Insert line number at the head of each line
-function ILN(delim)
-	let l:bln = line(".")
-	" get the width of the maximum line number
-	let l:width = strlen(line("$")+1)
-	let l:cln = l:bln
-	while 1
-		let l:rep = l:width - strlen(l:cln-l:bln+1)
-		if l:rep > 0
-			execute "normal " . l:rep . "gI "
-			execute "normal a" . (l:cln-l:bln+1) . a:delim
-		else
-			execute "normal i" . (l:cln-l:bln+1) . a:delim
-		endif
-		normal j
-		normal 0
-		let l:nln = line(".")
-		if l:cln == l:nln
-			break
-		else
-			let l:cln = l:nln
-		endif
-	endwhile
-endfunction
 " Format the code with prepending and appending sapce
 function CFT()
 	normal i 
