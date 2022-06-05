@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ACTION=$1
+
 #PLG_DIR=pack/my/start
 PLG_DIR=bundle
 
@@ -7,7 +9,7 @@ update_plugin() {
 	local name=$1
 	local repo=$2
 	local branch=$3
-	if [ ! -d $PLG_DIR/$name ]; then
+	if [[ x"$ACTION" == x"add" ]]; then
 		git subtree add  --prefix=$PLG_DIR/$name $repo $branch --squash
 	else
 		git subtree pull --prefix=$PLG_DIR/$name $repo $branch --squash
