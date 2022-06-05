@@ -22,11 +22,12 @@ update_plugin indentLine   https://github.com/Yggdroot/indentLine.git   master
 update_plugin rainbow      https://github.com/luochen1990/rainbow.git   master
 update_plugin fencview     https://github.com/mbbill/fencview.git       master
 update_plugin coc.nvim     https://github.com/neoclide/coc.nvim.git     release
-update_plugin vim-monokai  https://github.com/sickill/vim-monokai.git   master
 update_plugin vim-surround https://github.com/tpope/vim-surround.git    master
+update_plugin vim-monokai  https://github.com/sickill/vim-monokai.git   master
+
+update_plugin vim-easy-align https://github.com/junegunn/vim-easy-align.git master
 
 update_plugin verilog_systemverilog.vim https://github.com/vhda/verilog_systemverilog.vim master
 
-update_plugin Align        https://github.com/vim-scripts/Align.git     master
-update_plugin VisIncr      https://github.com/vim-scripts/VisIncr.git   master
-update_plugin LargeFile    https://github.com/vim-scripts/LargeFile.git master
+update_plugin VisIncr        https://github.com/vim-scripts/VisIncr.git   master
+update_plugin LargeFile      https://github.com/vim-scripts/LargeFile.git master
