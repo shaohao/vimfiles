@@ -1,16 +1,30 @@
 #!/bin/bash
 
-git subtree pull --prefix=bundle/LeaderF      https://github.com/Yggdroot/LeaderF.git      master  --squash
-git subtree pull --prefix=bundle/indentLine   https://github.com/Yggdroot/indentLine.git   master  --squash
+#PLG_DIR=pack/my/start
+PLG_DIR=bundle
 
-git subtree pull --prefix=bundle/rainbow      https://github.com/luochen1990/rainbow.git   master  --squash
-git subtree pull --prefix=bundle/fencview     https://github.com/mbbill/fencview.git       master  --squash
-git subtree pull --prefix=bundle/coc.nvim     https://github.com/neoclide/coc.nvim.git     release --squash
-git subtree pull --prefix=bundle/vim-monokai  https://github.com/sickill/vim-monokai.git   master  --squash
-git subtree pull --prefix=bundle/vim-surround https://github.com/tpope/vim-surround.git    master  --squash
+update_plugin() {
+	local name=$1
+	local repo=$2
+	local branch=$3
+	if [ ! -d $PLG_DIR/$name ]; then
+		git subtree add  --prefix=$PLG_DIR/$name $repo $branch --squash
+	else
+		git subtree pull --prefix=$PLG_DIR/$name $repo $branch --squash
+	fi
+}
 
-git subtree pull --prefix=bundle/verilog_systemverilog.vim https://github.com/vhda/verilog_systemverilog.vim master --squash
+update_plugin LeaderF      https://github.com/Yggdroot/LeaderF.git      master
+update_plugin indentLine   https://github.com/Yggdroot/indentLine.git   master
 
-git subtree pull --prefix=bundle/Align        https://github.com/vim-scripts/Align.git     master  --squash
-git subtree pull --prefix=bundle/VisIncr      https://github.com/vim-scripts/VisIncr.git   master  --squash
-git subtree pull --prefix=bundle/LargeFile    https://github.com/vim-scripts/LargeFile.git master  --squash
+update_plugin rainbow      https://github.com/luochen1990/rainbow.git   master
+update_plugin fencview     https://github.com/mbbill/fencview.git       master
+update_plugin coc.nvim     https://github.com/neoclide/coc.nvim.git     release
+update_plugin vim-monokai  https://github.com/sickill/vim-monokai.git   master
+update_plugin vim-surround https://github.com/tpope/vim-surround.git    master
+
+update_plugin verilog_systemverilog.vim https://github.com/vhda/verilog_systemverilog.vim master
+
+update_plugin Align        https://github.com/vim-scripts/Align.git     master
+update_plugin VisIncr      https://github.com/vim-scripts/VisIncr.git   master
+update_plugin LargeFile    https://github.com/vim-scripts/LargeFile.git master
